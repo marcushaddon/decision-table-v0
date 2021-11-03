@@ -1,12 +1,11 @@
-export enum Condition {
-    T = "T",
-    F = "F",
-    ANY = "-"
+import { Value, SimpleValue } from "./value";
+
+export interface Condition {
+    variableName: string;
+    value: Value;
 }
 
-export enum SimpleCondition {
-    T = Condition.T,
-    F = Condition.F
-}
-
-export default Condition;
+export interface SimpleCondition {
+    variableName: string;
+    value: SimpleValue;
+};

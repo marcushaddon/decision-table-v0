@@ -1,46 +1,62 @@
-import { SimpleRule } from "../src/model/rule";
-import { Condition, SimpleCondition} from "../src/model/condition";
+import { Value } from "../src/model/value";
+import { Rule } from "../src/model/rule";
+import { numVal, expand } from "../src/model/rule";
 
-type TestCase = {
-    conds: SimpleCondition[];
-    num: number;
-}
+const { T, F, ANY } = Value;
 
-const { T, F } = SimpleCondition;
+type ExpansionTestCase = {
+    values: Value[];
+    expanded: number[]; // Using number representation for simplicity
+};
 
+const BIG_NUM = 20;
+
+// const { T, F, ANY } = Condition;
 describe("Rule", () => {
-    const names = ["A", "B", "C", "D"];
+    const cases: ExpansionTestCase[] = [
+        {
+            values: [F, F, T, T],
+            expanded: [3]
+        },
+        {
+            values: [F],
+            expanded: [0]
+        },
+        {
+            values: [T],
+            expanded: [1]
+        },
+        {
+            values: [ANY],
+            expanded: [0, 1]
+        },
+        {
+            values: [ANY, F, ANY],
+            expanded: [0, 1, 4, 5]
+        },
+        {
+            values: [F, F, F, ANY],
+            expanded: [0, 1]
+        },
+        {
+            values: [...Array(BIG_NUM)].map(() => ANY),
+            expanded: [...Array(Math.pow(2, BIG_NUM))].map((_, i) => i).sort()
+        },
+    ];
 
-    it("converts to a number correctly", () => {
-        const testCases: TestCase[] = [
-            {
-                conds: [F, F, F, F],
-                num: 0
-            },
-            {
-                conds: [F, F, F, T],
-                num: 1
-            },
-            {
-                conds: [F, F, T, T],
-                num: 3
-            },
-            {
-                conds: [F, F, T, F],
-                num: 2
-            },
-            {
-                conds: [T, F, F, T],
-                num: 9
-            },
-            {
-                conds: [F, T, T, F],
-                num: 6
-            },
-        ];
-        
-        testCases.forEach(testCase => {
-            expect(new SimpleRule(names, testCase.conds).asNumber()).toEqual(testCase.num);
-        })
-    });
-})
+    it("expands rules containing 'any' conditions into all possible explicit rules", () => {
+        cases.forEach(tCase => {
+            const rule: Rule = tCase.values
+                .map((value, i) => ({ variableName: i.toString(), value }))
+            
+            const start = new Date().getTime();
+            const res = expand(rule)
+                .map(expanded => numVal(expanded));
+            const dur = new Date().getTime() - start;
+            console.log(`Calculated ${res.length} possible rules in ${dur} ms`);
+            
+            res.sort();
+            expect(res).toEqual(tCase.expanded);
+        });
+    })
+});
