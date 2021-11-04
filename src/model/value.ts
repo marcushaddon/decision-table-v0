@@ -1,7 +1,8 @@
 export enum Value {
     T = "T",
     F = "F",
-    ANY = "-"
+    ANY = "-",
+    UNKNOWN = "?"
 }
 
 export enum SimpleValue {

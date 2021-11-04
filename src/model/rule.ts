@@ -8,7 +8,6 @@ export type Rule = Condition[];
 export const numVal = (rule: SimpleRule): number => {
     let mask = 1;
     let num = 0;
-    let i = 0;
     for (let i = 0; i < rule.length; i++) {
         const condition = rule[rule.length - 1 - i];
         if (condition.value === SimpleValue.T) {
@@ -18,6 +17,17 @@ export const numVal = (rule: SimpleRule): number => {
     }
 
     return num;
+};
+
+export const ruleFromVal = (val: number, variableNames: string[]): SimpleRule => {
+    const masks = variableNames.map((_, i) => 1 << (variableNames.length - i - 1));
+    const flipped = masks.map(mask => (mask & val) === mask);
+    const rule: SimpleRule = variableNames.map((variableName, i) => ({
+        variableName,
+        value: flipped[i] ? SimpleValue.T : SimpleValue.F
+    }))
+
+    return rule;
 }
 
 export const expand = (rule: Rule): SimpleRule[] => {
