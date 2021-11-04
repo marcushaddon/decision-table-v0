@@ -1,0 +1,1 @@
+{"version":3,"file":"condition.d.ts","sourceRoot":"","sources":["../../../src/model/condition.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,WAAW,EAAE,MAAM,SAAS,CAAC;AAE7C,MAAM,WAAW,SAAS;IACtB,YAAY,EAAE,MAAM,CAAC;IACrB,KAAK,EAAE,KAAK,CAAC;CAChB;AAED,MAAM,WAAW,eAAe;IAC5B,YAAY,EAAE,MAAM,CAAC;IACrB,KAAK,EAAE,WAAW,CAAC;CACtB"}

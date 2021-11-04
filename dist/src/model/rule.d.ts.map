@@ -1,0 +1,1 @@
+{"version":3,"file":"rule.d.ts","sourceRoot":"","sources":["../../../src/model/rule.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,SAAS,EAAE,eAAe,EAAE,MAAM,aAAa,CAAC;AAGzD,oBAAY,UAAU,GAAG,eAAe,EAAE,CAAC;AAC3C,oBAAY,IAAI,GAAG,SAAS,EAAE,CAAC;AAE/B,eAAO,MAAM,MAAM,wBAAuB,MAYzC,CAAC;AAEF,eAAO,MAAM,WAAW,QAAS,MAAM,iBAAiB,MAAM,EAAE,eAS/D,CAAA;AAED,eAAO,MAAM,MAAM,kBAAiB,UAAU,EAiC7C,CAAA"}
