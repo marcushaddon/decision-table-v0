@@ -1,7 +1,11 @@
 import { expand, numVal, ruleFromVal, Rule, SimpleRule } from "./rule";
 import Value from "./value";
 
-export type DecisionTable = Rule[];
+export type DecisionTable = {
+    rules: Rule[];
+    actions: string[];
+    ruleActions: number[];
+};
 
 type UnmetCondition = SimpleRule; // I know, i know...
 type ConflictingRules = {
@@ -22,8 +26,8 @@ export type TableEvaluation = {
     isSound: boolean;
 };
 
-export const evaluateTable = (dt: DecisionTable): TableEvaluation => {
-    if (dt.length === 0) {
+export const evaluateTable = ({ rules, actions }: DecisionTable): TableEvaluation => {
+    if (rules.length === 0) {
         return {
             isSound: false,
             uncoveredConditions: [],
@@ -31,7 +35,7 @@ export const evaluateTable = (dt: DecisionTable): TableEvaluation => {
             incompleteRules: []
         }
     }
-    const incompleteRules = dt.filter(
+    const incompleteRules = rules.filter(
         rule => rule.findIndex(cond => cond.value === Value.UNKNOWN) > -1
     );
 
@@ -44,7 +48,13 @@ export const evaluateTable = (dt: DecisionTable): TableEvaluation => {
         }
     }
 
-    const allExpanded = dt.map(rule => expand(rule));
+    // TODO: note redundant actions
+    const redundantRules: { [ idx: number ]: boolean}[] = [];
+
+    // pairKey is aIdx|bIdx -> numbers of overlapping
+    const conflictPairs: { [pairKey: string]: number[] } = {};
+
+    const allExpanded = rules.map(rule => expand(rule));
     // seenVals is a lookup from "rules numeric vallue"
     // to the idx of every rule in the table that covers it
     const seenVals = allExpanded.reduce((seen, expansion, idx) => {
@@ -58,9 +68,9 @@ export const evaluateTable = (dt: DecisionTable): TableEvaluation => {
         });
 
         return seen;
-    }, {} as { [val: number ]: number[] });
+    }, {} as { [ val: number ]: number[] });
 
-    const highestPossibleValue = Math.pow(2, dt[0].length);
+    const highestPossibleValue = Math.pow(2, rules[0].length);
 
     const allnums = [...Array(highestPossibleValue)]
         .map((_, i) => i);
@@ -68,7 +78,7 @@ export const evaluateTable = (dt: DecisionTable): TableEvaluation => {
     const notSeen = allnums
         .filter(val => !(val in seenVals));
     
-    const variableNames = dt[0].map(cond => cond.variableName);
+    const variableNames = rules[0].map(cond => cond.variableName);
     const toRules = notSeen
         .map((val, ) => ruleFromVal(val, variableNames)) as UnmetCondition[];
 
@@ -76,13 +86,17 @@ export const evaluateTable = (dt: DecisionTable): TableEvaluation => {
         .filter(([ ,idxs]) => idxs.length > 1)
         .map(([ val, idxes ]) => ({
             condition: ruleFromVal(parseInt(val), variableNames),
-            rules: idxes.map(idx => dt[idx])
-        }))
+            rules: idxes.map(idx => rules[idx])
+        }));
 
     return {
         uncoveredConditions: toRules,
         conflicts,
         incompleteRules: [],
         isSound: conflicts.length === 0 && toRules.length === 0,
-    }
-}
+    };
+};
+
+
+// getAllCombinations
+// getSeenCombinations

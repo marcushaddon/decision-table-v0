@@ -3,8 +3,13 @@ import { Rule, SimpleRule } from "./rule";
 import { SimpleValue, Value } from "./value";
 
 export class Table {
+    // TODO: this should just be part of the DecisionTable type?
     private varNames: string[];
-    private rules: DecisionTable = [];
+    private table: DecisionTable = {
+        rules: [],
+        actions: [],
+        ruleActions: [],
+    };
     private cachedEvaluation?: TableEvaluation;
     constructor(varNames: string[]) {
         this.varNames = [ ...varNames ];
@@ -25,7 +30,7 @@ export class Table {
 
         const sorted: Rule = this.varNames.map(vn => rule.find(cond => cond.variableName === vn)!);
         
-        this.rules.push(sorted);
+        this.table.rules.push(sorted);
         delete this.cachedEvaluation;
     }
 
@@ -45,7 +50,7 @@ export class Table {
         this.varNames[oldIdx] = newName;
 
         // update all rules with new names
-        for (const rule of this.rules) {
+        for (const rule of this.table.rules) {
             for (const cond of rule) {
                 if (cond.variableName === oldName) {
                     cond.variableName = newName;
@@ -67,7 +72,7 @@ export class Table {
         this.varNames.push(varName);
 
         // add to all rules with value "NONE"
-        for (const rule of this.rules) {
+        for (const rule of this.table.rules) {
             rule.push({ variableName: varName, value: Value.UNKNOWN }); 
         }
 
@@ -82,12 +87,12 @@ export class Table {
             throw new Error(`Unkown var: ${varName}`);
         }
         // make sure ruleNum is valid
-        if (ruleNum < 0 || ruleNum >= this.rules.length) {
+        if (ruleNum < 0 || ruleNum >= this.table.rules.length) {
             throw new Error(`No rule at index: ${ruleNum}`);
         }
 
         // set val
-        this.rules[ruleNum][varIdx].value = val;
+        this.table.rules[ruleNum][varIdx].value = val;
         // bust cache
         delete this.cachedEvaluation;
     }
@@ -96,7 +101,7 @@ export class Table {
             // maybe return cached
             if (this.cachedEvaluation) return this.cachedEvaluation;
             // get eval
-            this.cachedEvaluation = evaluateTable(this.rules);
+            this.cachedEvaluation = evaluateTable(this.table);
             
             return this.cachedEvaluation;
         }

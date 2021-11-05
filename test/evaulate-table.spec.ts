@@ -1,11 +1,13 @@
 import { DecisionTable, evaluateTable } from "../src/model/evaluate-table";
-import { numVal } from "../src/model/rule";
+import { numVal, Rule } from "../src/model/rule";
 import { Value } from "../src/model/value"
 
 const { T, F, ANY } = Value;
 
 interface Case {
     rules: Value[][];
+    actions: string[];
+    ruleActions: number[];
     uncoveredVals: number[];
     overcoveredVals: number[];
     isSound: boolean;
@@ -18,6 +20,8 @@ const cases: Case[] = [
             [T, F],
             [F, T],
         ],
+        actions: [],
+        ruleActions: [],
         uncoveredVals: [0],
         overcoveredVals: [],
         isSound: false,
@@ -27,6 +31,8 @@ const cases: Case[] = [
             [T, ANY],
             [F, T],
         ],
+        actions: [],
+        ruleActions: [],
         uncoveredVals: [0],
         overcoveredVals: [],
         isSound: false,
@@ -36,6 +42,8 @@ const cases: Case[] = [
             [T, ANY],
             [F, ANY]
         ],
+        actions: [],
+        ruleActions: [],
         uncoveredVals: [],
         overcoveredVals: [],
         isSound: true
@@ -47,6 +55,8 @@ const cases: Case[] = [
             [T, T],
             [F, F]
         ],
+        actions: [],
+        ruleActions: [],
         uncoveredVals: [1],
         overcoveredVals: [3],
         isSound: false,
@@ -56,7 +66,7 @@ const cases: Case[] = [
 describe("DecisionTable", () => {
     it("correctly identifies uncovered rules", () => {
         cases.forEach(tCase => {
-            const table: DecisionTable = tCase.rules
+            const rules: Rule[]= tCase.rules
                 .map(
                     rule => rule.map(
                         (value, i) => ({
@@ -65,6 +75,12 @@ describe("DecisionTable", () => {
                         })
                     )
                 );
+            
+            const table: DecisionTable = {
+                rules,
+                actions: tCase.actions,
+                ruleActions: tCase.ruleActions
+            }
 
             const { uncoveredConditions, conflicts, isSound } = evaluateTable(table);
 
