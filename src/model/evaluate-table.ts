@@ -1,5 +1,6 @@
 import { expand, numVal, ruleFromVal, Rule, SimpleRule } from "./rule";
 import Value from "./value";
+import { range } from "../helpers";
 
 export type DecisionTable = {
     rules: Rule[];
@@ -26,7 +27,7 @@ export type TableEvaluation = {
     isSound: boolean;
 };
 
-export const evaluateTable = ({ rules, actions }: DecisionTable): TableEvaluation => {
+export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): TableEvaluation => {
     if (rules.length === 0) {
         return {
             isSound: false,
@@ -49,10 +50,14 @@ export const evaluateTable = ({ rules, actions }: DecisionTable): TableEvaluatio
     }
 
     // TODO: note redundant actions
-    const redundantRules: { [ idx: number ]: boolean}[] = [];
-
-    // pairKey is aIdx|bIdx -> numbers of overlapping
-    const conflictPairs: { [pairKey: string]: number[] } = {};
+    const redundantRules: number[][] = [];
+    for (const i of range(rules.length)) {
+        for (const j of range(i, rules.length)) {
+            if (ruleActions[i] === ruleActions[j]) {
+                redundantRules.push([i, j]);
+            }
+        }
+    }
 
     const allExpanded = rules.map(rule => expand(rule));
     // seenVals is a lookup from "rules numeric vallue"
