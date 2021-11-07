@@ -1,3 +1,5 @@
+import { resourceUsage } from "process";
+import { range } from "../src/helpers";
 import { DecisionTable, evaluateTable } from "../src/model/evaluate-table";
 import { numVal, Rule } from "../src/model/rule";
 import { Value } from "../src/model/value"
@@ -9,8 +11,10 @@ interface Case {
     actions: string[];
     ruleActions: number[];
     uncoveredVals: number[];
+    // This is poorly named, this represents conflicts
     overcoveredVals: number[];
     isSound: boolean;
+    redundantRules: number[],
 }
 
 const cases: Case[] = [
@@ -21,10 +25,11 @@ const cases: Case[] = [
             [F, T],
         ],
         actions: [],
-        ruleActions: [],
+        ruleActions: [0, 1, 0],
         uncoveredVals: [0],
         overcoveredVals: [],
         isSound: false,
+        redundantRules: [],
     },
     {
         rules: [
@@ -36,6 +41,7 @@ const cases: Case[] = [
         uncoveredVals: [0],
         overcoveredVals: [],
         isSound: false,
+        redundantRules: [],
     },
     {
         rules: [
@@ -46,7 +52,8 @@ const cases: Case[] = [
         ruleActions: [],
         uncoveredVals: [],
         overcoveredVals: [],
-        isSound: true
+        isSound: true,
+        redundantRules: [],
     },
     {
         // Conflict and uncovered conditions
@@ -60,29 +67,23 @@ const cases: Case[] = [
         uncoveredVals: [1],
         overcoveredVals: [3],
         isSound: false,
+        redundantRules: [],
     }
 ];
 
 describe("DecisionTable", () => {
     it("correctly identifies uncovered rules", () => {
         cases.forEach(tCase => {
-            const rules: Rule[]= tCase.rules
-                .map(
-                    rule => rule.map(
-                        (value, i) => ({
-                            variableName: i.toString(),
-                            value
-                        })
-                    )
-                );
+            const rules: Rule[]= tCase.rules;
             
             const table: DecisionTable = {
                 rules,
                 actions: tCase.actions,
-                ruleActions: tCase.ruleActions
+                ruleActions: tCase.ruleActions,
+                varNames: [...range(rules.length)].map(i => i.toString())
             }
 
-            const { uncoveredConditions, conflicts, isSound } = evaluateTable(table);
+            const { uncoveredConditions, conflicts, isSound, redundantRules } = evaluateTable(table);
 
             const uncoveredVals = uncoveredConditions.map(uc => numVal(uc));
             uncoveredVals.sort();
@@ -90,7 +91,7 @@ describe("DecisionTable", () => {
 
             const overcoveredVals = conflicts.map(({ condition }) => numVal(condition));
             overcoveredVals.sort();
-            expect(overcoveredVals).toEqual(tCase.overcoveredVals);
+            expect(overcoveredVals).toEqual(tCase.overcoveredVals);            
 
             expect(isSound).toEqual(tCase.isSound);
         });

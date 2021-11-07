@@ -11,9 +11,11 @@ export function* fliterate<T>(nested: T[][]): Generator<[number, T], void, void>
     }
 }
 
-export function* range(n: number): Generator<number, void, void> {
-    let i = 0;
-    while (i < n) {
+export function* range(n: number, m?: number): Generator<number, void, void> {
+    let i = (typeof m === 'number') ? n : 0;
+    const end = (typeof m === 'number') ? m : n;
+    while (i < end) {
         yield i;
+        i++
     }
 }

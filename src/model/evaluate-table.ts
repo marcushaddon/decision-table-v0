@@ -4,25 +4,27 @@ import { range } from "../helpers";
 
 export type DecisionTable = {
     rules: Rule[];
+    varNames: string[];
     actions: string[];
     ruleActions: number[];
 };
 
 type UnmetCondition = SimpleRule; // I know, i know...
-type ConflictingRules = {
-    a: Rule;
-    b: Rule;
-    conflicts: Rule[];
-};
 
 type RedundantlyCoveredCondition = {
     condition: SimpleRule,
     rules: Rule[],
 }
 
+type RedundantlyCoveredAction = {
+    action: number,
+    rules: Rule[],
+}
+
 export type TableEvaluation = {
     uncoveredConditions: UnmetCondition[]; 
     conflicts: RedundantlyCoveredCondition[];
+    redundantRules: RedundantlyCoveredAction[];
     incompleteRules: Rule[];
     isSound: boolean;
 };
@@ -33,28 +35,34 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
             isSound: false,
             uncoveredConditions: [],
             conflicts: [],
-            incompleteRules: []
+            incompleteRules: [],
+            redundantRules: [],
         }
     }
     const incompleteRules = rules.filter(
-        rule => rule.findIndex(cond => cond.value === Value.UNKNOWN) > -1
+        rule => rule.findIndex(v => v === Value.UNKNOWN) > -1
     );
 
+    // TODO: maybe still figure out the others as mucha s possible?
     if (incompleteRules.length > 0) {
         return {
             uncoveredConditions: [],
             conflicts: [],
             incompleteRules,
             isSound: false,
+            redundantRules: [],
         }
     }
 
     // TODO: note redundant actions
-    const redundantRules: number[][] = [];
-    for (const i of range(rules.length)) {
-        for (const j of range(i, rules.length)) {
+    const redundantRules: RedundantlyCoveredAction[] = [];
+    for (let i = 0; i < rules.length; i++) {
+        for (let j = i; j < rules.length; j++) {
             if (ruleActions[i] === ruleActions[j]) {
-                redundantRules.push([i, j]);
+                redundantRules.push({
+                    action: ruleActions[i],
+                    rules: [rules[i], rules[j]],
+                });
             }
         }
     }
@@ -77,20 +85,20 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
 
     const highestPossibleValue = Math.pow(2, rules[0].length);
 
-    const allnums = [...Array(highestPossibleValue)]
-        .map((_, i) => i);
+    const allnums = [...range(highestPossibleValue)];
 
     const notSeen = allnums
         .filter(val => !(val in seenVals));
+
+    const len = rules[0].length;
     
-    const variableNames = rules[0].map(cond => cond.variableName);
     const toRules = notSeen
-        .map((val, ) => ruleFromVal(val, variableNames)) as UnmetCondition[];
+        .map((val, ) => ruleFromVal(val, len)) as UnmetCondition[];
 
     const conflicts = Object.entries(seenVals)
         .filter(([ ,idxs]) => idxs.length > 1)
         .map(([ val, idxes ]) => ({
-            condition: ruleFromVal(parseInt(val), variableNames),
+            condition: ruleFromVal(parseInt(val), len),
             rules: idxes.map(idx => rules[idx])
         }));
 
@@ -99,6 +107,7 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
         conflicts,
         incompleteRules: [],
         isSound: conflicts.length === 0 && toRules.length === 0,
+        redundantRules,
     };
 };
 

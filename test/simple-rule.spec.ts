@@ -40,8 +40,7 @@ describe("SimpleRule", () => {
         ];
         
         testCases.forEach(testCase => {
-            const rule: SimpleRule = testCase.conds
-                .map((value, i) => ({ variableName: i.toString(), value }))
+            const rule: SimpleRule = testCase.conds;
             expect(
                 numVal(rule)
             ).toEqual(testCase.num);

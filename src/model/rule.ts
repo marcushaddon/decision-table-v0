@@ -1,16 +1,16 @@
-import { oneToManyCartesianProduct } from "../helpers";
+import { oneToManyCartesianProduct, range } from "../helpers";
 import { Condition, SimpleCondition } from "./condition";
 import { Value, SimpleValue } from "./value";
 
-export type SimpleRule = SimpleCondition[];
-export type Rule = Condition[];
+export type SimpleRule = SimpleValue[];
+export type Rule = Value[];
 
 export const numVal = (rule: SimpleRule): number => {
     let mask = 1;
     let num = 0;
     for (let i = 0; i < rule.length; i++) {
-        const condition = rule[rule.length - 1 - i];
-        if (condition.value === SimpleValue.T) {
+        const value = rule[rule.length - 1 - i];
+        if (value === SimpleValue.T) {
             num |= mask;
         }
         mask <<= 1;
@@ -19,40 +19,37 @@ export const numVal = (rule: SimpleRule): number => {
     return num;
 };
 
-export const ruleFromVal = (val: number, variableNames: string[]): SimpleRule => {
-    const masks = variableNames.map((_, i) => 1 << (variableNames.length - i - 1));
+export const ruleFromVal = (val: number, len: number): SimpleRule => {
+    const masks = [ ...range(len)].map((_, i) => 1 << (len - i - 1));
     const flipped = masks.map(mask => (mask & val) === mask);
-    const rule: SimpleRule = variableNames.map((variableName, i) => ({
-        variableName,
-        value: flipped[i] ? SimpleValue.T : SimpleValue.F
-    }))
+    const rule: SimpleRule = flipped.map((f) => f ? SimpleValue.T : SimpleValue.F)
 
     return rule;
 }
 
 export const expand = (rule: Rule): SimpleRule[] => {
     if (rule.length === 1) {
-        const { variableName, value } = rule[0];
+        const value = rule[0];
         return value === Value.ANY ?
             [ 
-                [{ variableName, value: SimpleValue.T }],
-                [{ variableName, value: SimpleValue.F }]
+                [ SimpleValue.T ],
+                [ SimpleValue.F ]
             ] : [ rule as unknown as SimpleRule ]
     }
 
-    const firstAnyIdx = rule.findIndex(({ value }) => value === Value.ANY);
+    const firstAnyIdx = rule.findIndex(value => value === Value.ANY);
     if (firstAnyIdx === -1) {
         return [ rule as unknown as SimpleRule ];
     }
 
-    const prefix = rule.slice(0, firstAnyIdx) as unknown as SimpleCondition[];
+    const prefix = rule.slice(0, firstAnyIdx) as unknown as SimpleValue[];
     const suffix = rule.slice(firstAnyIdx+1, rule.length);
     const anyCondition = rule[firstAnyIdx];
 
     const conditionsfTrue: SimpleRule = 
-        [ ...prefix, { ...anyCondition, value: SimpleValue.T }];
+        [ ...prefix, SimpleValue.T ];
     const conditionsIfFalse: SimpleRule = 
-        [ ...prefix, { ...anyCondition, value: SimpleValue.F }];
+        [ ...prefix, SimpleValue.F ];
     
     const expandedSuffix = expand(suffix);
     

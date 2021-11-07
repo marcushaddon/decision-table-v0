@@ -46,8 +46,7 @@ describe("Rule", () => {
 
     it("expands rules containing 'any' conditions into all possible explicit rules", () => {
         cases.forEach(tCase => {
-            const rule: Rule = tCase.values
-                .map((value, i) => ({ variableName: i.toString(), value }))
+            const rule: Rule = tCase.values;
             
             const start = new Date().getTime();
             const res = expand(rule)
