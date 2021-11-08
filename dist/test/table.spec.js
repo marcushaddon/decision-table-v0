@@ -11,37 +11,37 @@ describe("Table", () => {
         expect(table.evaluate().isSound).toBeFalsy();
         // Can add rules out of order
         table.addRule([
-            { variableName: "B", value: UNKNOWN },
-            { variableName: "A", value: T },
+            { varName: "B", value: UNKNOWN },
+            { varName: "A", value: T },
         ]);
         expect(table.evaluate().isSound).toBeFalsy();
         expect(table.evaluate().incompleteRules.length).toEqual(1);
         // Sets condition
-        table.setCondition("B", 0, ANY);
+        table.setCondition(0, "B", ANY);
         const res1 = table.evaluate();
         expect(res1.isSound).toBeFalsy();
         expect(res1.uncoveredConditions.length).toEqual(2);
         // Updates evaluation
         table.addRule([
-            { variableName: "A", value: F },
-            { variableName: "B", value: T },
+            { varName: "A", value: F },
+            { varName: "B", value: T },
         ]);
         const res2 = table.evaluate();
         expect(res2.isSound).toBeFalsy();
         expect(res2.uncoveredConditions.length).toEqual(1);
         // Becomes valid after updating condition
-        table.setCondition("B", 1, ANY);
+        table.setCondition(1, "B", ANY);
         const res3 = table.evaluate();
         expect(res3.isSound).toBeTruthy();
         expect(res3.uncoveredConditions.length).toEqual(0);
         // Detects overlapping rules
         table.addRule([
             {
-                variableName: "A",
+                varName: "A",
                 value: F
             },
             {
-                variableName: "B",
+                varName: "B",
                 value: T
             }
         ]);
@@ -61,7 +61,7 @@ describe("Table", () => {
         expect(() => {
             t2.addRule([
                 {
-                    variableName: "A",
+                    varName: "A",
                     value: T,
                 }
             ]);
@@ -70,15 +70,15 @@ describe("Table", () => {
         expect(() => {
             t2.addRule([
                 {
-                    variableName: "A",
+                    varName: "A",
                     value: T,
                 },
                 {
-                    variableName: "B",
+                    varName: "B",
                     value: ANY
                 },
                 {
-                    variableName: "C",
+                    varName: "C",
                     value: T,
                 }
             ]);

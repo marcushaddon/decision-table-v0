@@ -1,7 +1,7 @@
-import { Condition, SimpleCondition } from "./condition";
-export declare type SimpleRule = SimpleCondition[];
-export declare type Rule = Condition[];
+import { Value, SimpleValue } from "./value";
+export declare type SimpleRule = SimpleValue[];
+export declare type Rule = Value[];
 export declare const numVal: (rule: SimpleRule) => number;
-export declare const ruleFromVal: (val: number, variableNames: string[]) => SimpleRule;
+export declare const ruleFromVal: (val: number, len: number) => SimpleRule;
 export declare const expand: (rule: Rule) => SimpleRule[];
 //# sourceMappingURL=rule.d.ts.map

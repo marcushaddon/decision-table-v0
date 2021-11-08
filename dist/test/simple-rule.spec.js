@@ -33,8 +33,7 @@ describe("SimpleRule", () => {
             },
         ];
         testCases.forEach(testCase => {
-            const rule = testCase.conds
-                .map((value, i) => ({ variableName: i.toString(), value }));
+            const rule = testCase.conds;
             expect((0, rule_1.numVal)(rule)).toEqual(testCase.num);
         });
     });

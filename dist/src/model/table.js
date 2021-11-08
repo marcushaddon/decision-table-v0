@@ -5,76 +5,83 @@ const evaluate_table_1 = require("./evaluate-table");
 const value_1 = require("./value");
 class Table {
     constructor(varNames) {
-        this.rules = [];
-        this.varNames = [...varNames];
+        this.table = {
+            rules: [],
+            actions: [],
+            ruleActions: [],
+            varNames: [],
+        };
+        this.table.varNames = varNames ? [...varNames] : [];
     }
     ;
     addRule(rule) {
-        const incomingVars = rule.map(cond => cond.variableName);
-        const missingVars = this.varNames.filter(name => !incomingVars.includes(name));
+        if (this.table.varNames.length === 0) {
+            this.table.varNames = rule.map(({ varName }) => varName);
+        }
+        const missingVars = this.table.varNames
+            .filter(v => rule.findIndex(p => p.varName === v) === -1);
         if (missingVars.length > 0) {
-            throw new Error(`Incoming rule missing variable names: ${missingVars.join(", ")}`);
+            throw new Error(`Rule missing vars: ${missingVars.join(',')}`);
         }
-        const unknownVars = incomingVars.filter(iv => !this.varNames.includes(iv));
-        if (unknownVars.length > 0) {
-            throw new Error(`Receieved unknown variable names: ${unknownVars.join(", ")}`);
+        const extraVars = rule
+            .filter(p => !this.table.varNames.includes(p.varName));
+        if (extraVars.length > 0) {
+            throw new Error(`Rule contains unknown var(s): ${extraVars.join(',')}`);
         }
-        const sorted = this.varNames.map(vn => rule.find(cond => cond.variableName === vn));
-        this.rules.push(sorted);
+        const varVals = rule
+            .reduce((vals, { value, varName }) => {
+            vals[varName] = value;
+            return vals;
+        }, {});
+        const sorted = this.table.varNames
+            .map(vn => varVals[vn]);
+        this.table.rules.push(sorted);
         delete this.cachedEvaluation;
     }
     renameVar(oldName, newName) {
         // Make sure oldName exists
-        const oldIdx = this.varNames.indexOf(oldName);
+        const oldIdx = this.table.varNames.indexOf(oldName);
         const oldExists = oldIdx > -1;
         if (!oldExists) {
             throw new Error(`Cannot rename unknown variable: ${oldName}`);
         }
         // Make sure newName doesnt exist
-        const newExists = this.varNames.indexOf(newName) > -1;
+        const newExists = this.table.varNames.indexOf(newName) > -1;
         if (newExists) {
             throw new Error(`Cannot rename ${oldName} to existing variable name: ${newName}`);
         }
         // update varNames
-        this.varNames[oldIdx] = newName;
-        // update all rules with new names
-        for (const rule of this.rules) {
-            for (const cond of rule) {
-                if (cond.variableName === oldName) {
-                    cond.variableName = newName;
-                }
-            }
-        }
+        this.table.varNames[oldIdx] = newName;
         // bust cache
         delete this.cachedEvaluation;
     }
     addVar(varName) {
         // make sure doesnt exist
-        const exists = this.varNames.indexOf(varName) > -1;
+        const exists = this.table.varNames.indexOf(varName) > -1;
         if (exists) {
             throw new Error(`Cannot overwrite variable name: ${varName}`);
         }
         // add to end of varNames
-        this.varNames.push(varName);
+        this.table.varNames.push(varName);
         // add to all rules with value "NONE"
-        for (const rule of this.rules) {
-            rule.push({ variableName: varName, value: value_1.Value.UNKNOWN });
+        for (const rule of this.table.rules) {
+            rule.push(value_1.Value.UNKNOWN);
         }
         // bust cache
         delete this.cachedEvaluation;
     }
-    setCondition(varName, ruleNum, val) {
+    setCondition(ruleNum, varName, val) {
         // make sure varName exists 
-        const varIdx = this.varNames.indexOf(varName);
+        const varIdx = this.table.varNames.indexOf(varName);
         if (varIdx === -1) {
             throw new Error(`Unkown var: ${varName}`);
         }
         // make sure ruleNum is valid
-        if (ruleNum < 0 || ruleNum >= this.rules.length) {
+        if (ruleNum < 0 || ruleNum >= this.table.rules.length) {
             throw new Error(`No rule at index: ${ruleNum}`);
         }
         // set val
-        this.rules[ruleNum][varIdx].value = val;
+        this.table.rules[ruleNum][varIdx] = val;
         // bust cache
         delete this.cachedEvaluation;
     }
@@ -83,7 +90,7 @@ class Table {
         if (this.cachedEvaluation)
             return this.cachedEvaluation;
         // get eval
-        this.cachedEvaluation = (0, evaluate_table_1.evaluateTable)(this.rules);
+        this.cachedEvaluation = (0, evaluate_table_1.evaluateTable)(this.table);
         return this.cachedEvaluation;
     }
 }

@@ -1,15 +1,17 @@
 import { TableEvaluation } from "./evaluate-table";
-import { Rule } from "./rule";
 import { Value } from "./value";
+export declare type UnorderedRule = {
+    value: Value;
+    varName: string;
+}[];
 export declare class Table {
-    private varNames;
-    private rules;
+    private table;
     private cachedEvaluation?;
-    constructor(varNames: string[]);
-    addRule(rule: Rule): void;
+    constructor(varNames?: string[]);
+    addRule(rule: UnorderedRule): void;
     renameVar(oldName: string, newName: string): void;
     addVar(varName: string): void;
-    setCondition(varName: string, ruleNum: number, val: Value): void;
+    setCondition(ruleNum: number, varName: string, val: Value): void;
     evaluate(): TableEvaluation;
 }
 //# sourceMappingURL=table.d.ts.map
