@@ -12,11 +12,14 @@ export class Table {
         varNames: [],
     };
     private cachedEvaluation?: TableEvaluation;
-    constructor(varNames: string[]) {
-        this.table.varNames = [ ...varNames ];
+    constructor(varNames?: string[]) {
+        this.table.varNames = varNames ? [ ...varNames ] : [];
     };
 
     public addRule(rule: UnorderedRule) {
+        if (this.table.varNames.length === 0) {
+            this.table.varNames = rule.map(({ varName }) => varName);
+        }
         const missingVars = this.table.varNames
             .filter(v => rule.findIndex(p => p.varName === v) === -1);
 
@@ -99,14 +102,14 @@ export class Table {
         delete this.cachedEvaluation;
     }
 
-        public evaluate(): TableEvaluation {
-            // maybe return cached
-            if (this.cachedEvaluation) return this.cachedEvaluation;
-            // get eval
-            this.cachedEvaluation = evaluateTable(this.table);
-            
-            return this.cachedEvaluation;
-        }
+    public evaluate(): TableEvaluation {
+        // maybe return cached
+        if (this.cachedEvaluation) return this.cachedEvaluation;
+        // get eval
+        this.cachedEvaluation = evaluateTable(this.table);
+        
+        return this.cachedEvaluation;
+    }
 
 
     // TODO: execute actions!

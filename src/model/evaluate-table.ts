@@ -14,11 +14,13 @@ type UnmetCondition = SimpleRule; // I know, i know...
 type RedundantlyCoveredCondition = {
     condition: SimpleRule,
     rules: Rule[],
+    ruleIdxs: number[],
 }
 
 type RedundantlyCoveredAction = {
     action: number,
     rules: Rule[],
+    ruleIdxs: number[],
 }
 
 export type TableEvaluation = {
@@ -62,6 +64,7 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
                 redundantRules.push({
                     action: ruleActions[i],
                     rules: [rules[i], rules[j]],
+                    ruleIdxs: [i, j]
                 });
             }
         }
@@ -97,9 +100,10 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
 
     const conflicts = Object.entries(seenVals)
         .filter(([ ,idxs]) => idxs.length > 1)
-        .map(([ val, idxes ]) => ({
+        .map(([ val, ruleIdxs ]) => ({
             condition: ruleFromVal(parseInt(val), len),
-            rules: idxes.map(idx => rules[idx])
+            rules: ruleIdxs.map(idx => rules[idx]),
+            ruleIdxs
         }));
 
     return {

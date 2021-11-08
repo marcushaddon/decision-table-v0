@@ -91,7 +91,9 @@ describe("DecisionTable", () => {
 
             const overcoveredVals = conflicts.map(({ condition }) => numVal(condition));
             overcoveredVals.sort();
-            expect(overcoveredVals).toEqual(tCase.overcoveredVals);            
+            expect(overcoveredVals).toEqual(tCase.overcoveredVals);
+            
+            // TODO: test redundant rule detection!
 
             expect(isSound).toEqual(tCase.isSound);
         });

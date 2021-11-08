@@ -60,4 +60,4 @@ export const expand = (rule: Rule): SimpleRule[] => {
         ...trueCases,
         ...falseCases
     ];
-}
+};
