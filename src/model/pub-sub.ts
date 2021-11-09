@@ -27,7 +27,7 @@ export class PubSub<EventNames = string, EventData = any> {
 
     public cancel(subId: number) {
         const eventName = this.subIndex.get(subId);
-        console.log("EVENT NAME FOR", subId, eventName, this.subIndex);
+
         if (!eventName) return;
         this.subs.get(eventName)?.delete(subId);
     }

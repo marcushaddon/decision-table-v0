@@ -28,7 +28,6 @@ class PubSub {
     cancel(subId) {
         var _a;
         const eventName = this.subIndex.get(subId);
-        console.log("EVENT NAME FOR", subId, eventName, this.subIndex);
         if (!eventName)
             return;
         (_a = this.subs.get(eventName)) === null || _a === void 0 ? void 0 : _a.delete(subId);
