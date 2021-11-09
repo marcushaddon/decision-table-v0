@@ -11,6 +11,12 @@ const getMock = (): IDecisionTable => {
             incompleteRules: [],
             isSound: true,
         },
+        state: {
+            rules: [],
+            ruleActions: [],
+            varNames: [],
+            actions: [],
+        },
         addRule() { return; },
         addVar() { return; },
         setCondition() { return; },

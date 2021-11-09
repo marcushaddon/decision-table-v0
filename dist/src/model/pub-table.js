@@ -45,5 +45,8 @@ class PubSubTable {
     cancel(id) {
         return this.ps.cancel(id);
     }
+    get state() {
+        return this.dt.state;
+    }
 }
 exports.PubSubTable = PubSubTable;

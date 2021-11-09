@@ -111,6 +111,9 @@ export class Table {
         return this.cachedEvaluation;
     }
 
+    public get state(): DecisionTable {
+        return this.table;
+    }
 
     // TODO: execute actions!
 }

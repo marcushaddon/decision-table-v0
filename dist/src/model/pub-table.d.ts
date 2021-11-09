@@ -1,6 +1,6 @@
 import { PubSub } from "./pub-sub";
 import { UnorderedRule } from "./table";
-import { TableEvaluation } from "./evaluate-table";
+import { DecisionTable, TableEvaluation } from "./evaluate-table";
 import { Value } from "..";
 export interface IDecisionTable {
     addRule(rule: UnorderedRule): void;
@@ -8,6 +8,7 @@ export interface IDecisionTable {
     addVar(varName: string): void;
     setCondition(num: number, varName: string, val: Value): void;
     evaluate(): TableEvaluation;
+    state: DecisionTable;
 }
 export declare class PubSubTable {
     private dt;
@@ -31,5 +32,6 @@ export declare class PubSubTable {
      */
     onEvaluated(cb: (data: TableEvaluation) => void): number;
     cancel(id: number): void;
+    get state(): DecisionTable;
 }
 //# sourceMappingURL=pub-table.d.ts.map

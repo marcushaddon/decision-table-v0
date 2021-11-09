@@ -93,5 +93,8 @@ class Table {
         this.cachedEvaluation = (0, evaluate_table_1.evaluateTable)(this.table);
         return this.cachedEvaluation;
     }
+    get state() {
+        return this.table;
+    }
 }
 exports.Table = Table;

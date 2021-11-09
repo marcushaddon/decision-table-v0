@@ -1,4 +1,4 @@
-import { TableEvaluation } from "./evaluate-table";
+import { DecisionTable, TableEvaluation } from "./evaluate-table";
 import { Value } from "./value";
 export declare type UnorderedRule = {
     value: Value;
@@ -13,5 +13,6 @@ export declare class Table {
     addVar(varName: string): void;
     setCondition(ruleNum: number, varName: string, val: Value): void;
     evaluate(): TableEvaluation;
+    get state(): DecisionTable;
 }
 //# sourceMappingURL=table.d.ts.map

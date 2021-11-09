@@ -1,6 +1,6 @@
 import { PubSub } from "./pub-sub";
 import { Table, UnorderedRule } from "./table";
-import { TableEvaluation } from "./evaluate-table";
+import { DecisionTable, TableEvaluation } from "./evaluate-table";
 import { Value } from "..";
 
 type EventNames = "evaluated";
@@ -11,6 +11,7 @@ export interface IDecisionTable {
     addVar(varName: string): void;
     setCondition(num: number, varName: string, val: Value): void;
     evaluate(): TableEvaluation;
+    state: DecisionTable;
 }
 
 export class PubSubTable {
@@ -59,5 +60,9 @@ export class PubSubTable {
 
     public cancel(id: number) {
         return this.ps.cancel(id);
+    }
+
+    public get state(): DecisionTable {
+        return this.dt.state;
     }
 }
