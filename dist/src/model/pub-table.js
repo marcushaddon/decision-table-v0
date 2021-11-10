@@ -37,7 +37,8 @@ class PubSubTable {
         this.broadcast();
     }
     addAction(name) {
-        return this.dt.addAction(name);
+        this.dt.addAction(name);
+        this.broadcast();
     }
     /**
      * Forward pubsub methods

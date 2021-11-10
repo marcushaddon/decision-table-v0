@@ -53,7 +53,8 @@ export class PubSubTable {
     }
 
     public addAction(name: string) {
-        return this.dt.addAction(name);
+        this.dt.addAction(name);
+        this.broadcast();
     }
 
     /**
