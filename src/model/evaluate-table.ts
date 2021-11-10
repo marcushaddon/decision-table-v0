@@ -1,6 +1,6 @@
 import { expand, numVal, ruleFromVal, Rule, SimpleRule } from "./rule";
 import Value from "./value";
-import { range } from "../helpers";
+import { range, RuleGraph, overlap } from "../helpers";
 
 export type DecisionTable = {
     rules: Rule[];
@@ -25,7 +25,7 @@ type RedundantlyCoveredAction = {
 
 export type TableEvaluation = {
     uncoveredConditions: UnmetCondition[]; 
-    conflicts: RedundantlyCoveredCondition[];
+    conflicts: number[][];
     redundantRules: RedundantlyCoveredAction[];
     incompleteRules: Rule[];
     isSound: boolean;
@@ -104,13 +104,19 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
         .map((val, ) => ruleFromVal(val, len)) as UnmetCondition[];
 
     // TODO: dont mark rules without actions or with same actions as conflicts
-    const conflicts = Object.entries(seenVals)
-        .filter(([ ,idxs]) => idxs.length > 1)
-        .map(([ val, ruleIdxs ]) => ({
-            condition: ruleFromVal(parseInt(val), len),
-            rules: ruleIdxs.map(idx => rules[idx]),
-            ruleIdxs
-        }));
+    const conflictGraph = new RuleGraph();
+    for (let i = 0; i < rules.length; i++) {
+        for (let j = i+1; j < rules.length; j++) {
+            const a = rules[i];
+            const b = rules[j];
+            const sameActions = ruleActions[i] === ruleActions[j];
+            if (!sameActions) continue;
+            if (overlap(a, b)) {
+                conflictGraph.addEdge(i, j);
+            }
+        }
+    }
+    const conflicts = conflictGraph.edges();
 
     return {
         uncoveredConditions: toRules,

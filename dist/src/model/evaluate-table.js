@@ -65,13 +65,21 @@ const evaluateTable = ({ rules, actions, ruleActions }) => {
     const len = rules[0].length;
     const toRules = notSeen
         .map((val) => (0, rule_1.ruleFromVal)(val, len));
-    const conflicts = Object.entries(seenVals)
-        .filter(([, idxs]) => idxs.length > 1)
-        .map(([val, ruleIdxs]) => ({
-        condition: (0, rule_1.ruleFromVal)(parseInt(val), len),
-        rules: ruleIdxs.map(idx => rules[idx]),
-        ruleIdxs
-    }));
+    // TODO: dont mark rules without actions or with same actions as conflicts
+    const conflictGraph = new helpers_1.RuleGraph();
+    for (let i = 0; i < rules.length; i++) {
+        for (let j = i + 1; j < rules.length; j++) {
+            const a = rules[i];
+            const b = rules[j];
+            const sameActions = ruleActions[i] === ruleActions[j];
+            if (!sameActions)
+                continue;
+            if ((0, helpers_1.overlap)(a, b)) {
+                conflictGraph.addEdge(i, j);
+            }
+        }
+    }
+    const conflicts = conflictGraph.edges();
     return {
         uncoveredConditions: toRules,
         conflicts,

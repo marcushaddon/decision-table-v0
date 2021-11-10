@@ -6,11 +6,6 @@ export declare type DecisionTable = {
     ruleActions: string[];
 };
 declare type UnmetCondition = SimpleRule;
-declare type RedundantlyCoveredCondition = {
-    condition: SimpleRule;
-    rules: Rule[];
-    ruleIdxs: number[];
-};
 declare type RedundantlyCoveredAction = {
     action: string;
     rules: Rule[];
@@ -18,7 +13,7 @@ declare type RedundantlyCoveredAction = {
 };
 export declare type TableEvaluation = {
     uncoveredConditions: UnmetCondition[];
-    conflicts: RedundantlyCoveredCondition[];
+    conflicts: number[][];
     redundantRules: RedundantlyCoveredAction[];
     incompleteRules: Rule[];
     isSound: boolean;
