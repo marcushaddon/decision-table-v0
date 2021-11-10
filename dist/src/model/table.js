@@ -85,6 +85,13 @@ class Table {
         // bust cache
         delete this.cachedEvaluation;
     }
+    addAction(name) {
+        if (this.table.actions.includes(name)) {
+            throw new Error(`action ${name} already exists`);
+        }
+        this.table.actions.push(name);
+        delete this.cachedEvaluation;
+    }
     evaluate() {
         // maybe return cached
         if (this.cachedEvaluation)

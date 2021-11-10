@@ -10,6 +10,7 @@ export interface IDecisionTable {
     renameVar(oldName: string, newName: string): void;
     addVar(varName: string): void;
     setCondition(num: number, varName: string, val: Value): void;
+    addAction(name: string): void;
     evaluate(): TableEvaluation;
     state: DecisionTable;
 }
@@ -49,6 +50,10 @@ export class PubSubTable {
     public setCondition(row: number, varName: string, value: Value) {
         this.dt.setCondition(row, varName, value);
         this.broadcast();
+    }
+
+    public addAction(name: string) {
+        return this.dt.addAction(name);
     }
 
     /**

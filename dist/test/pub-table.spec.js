@@ -17,6 +17,7 @@ const getMock = () => {
             varNames: [],
             actions: [],
         },
+        addAction() { return; },
         addRule() { return; },
         addVar() { return; },
         setCondition() { return; },

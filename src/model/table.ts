@@ -102,6 +102,15 @@ export class Table {
         delete this.cachedEvaluation;
     }
 
+    public addAction(name: string) {
+        if (this.table.actions.includes(name)) {
+            throw new Error(`action ${name} already exists`);
+        }
+
+        this.table.actions.push(name);
+        delete this.cachedEvaluation;
+    }
+
     public evaluate(): TableEvaluation {
         // maybe return cached
         if (this.cachedEvaluation) return this.cachedEvaluation;

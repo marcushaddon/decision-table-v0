@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.expand = exports.ruleFromVal = exports.numVal = void 0;
+exports.combine = exports.expand = exports.ruleFromVal = exports.numVal = void 0;
 const helpers_1 = require("../helpers");
 const value_1 = require("./value");
 const numVal = (rule) => {
@@ -50,3 +50,15 @@ const expand = (rule) => {
     ];
 };
 exports.expand = expand;
+const combine = (a, b) => {
+    if (a.length !== b.length)
+        throw new Error("Recieved incompatible rules");
+    return a.map((aCond, i) => {
+        const bCond = b[i];
+        const match = aCond === bCond;
+        if (!match)
+            return value_1.Value.ANY;
+        return aCond;
+    });
+};
+exports.combine = combine;

@@ -7,6 +7,7 @@ export interface IDecisionTable {
     renameVar(oldName: string, newName: string): void;
     addVar(varName: string): void;
     setCondition(num: number, varName: string, val: Value): void;
+    addAction(name: string): void;
     evaluate(): TableEvaluation;
     state: DecisionTable;
 }
@@ -27,6 +28,7 @@ export declare class PubSubTable {
     renameVar(old: string, newName: string): void;
     addVar(varName: string): void;
     setCondition(row: number, varName: string, value: Value): void;
+    addAction(name: string): void;
     /**
      * Forward pubsub methods
      */

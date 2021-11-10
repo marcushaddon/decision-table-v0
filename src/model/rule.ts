@@ -61,3 +61,15 @@ export const expand = (rule: Rule): SimpleRule[] => {
         ...falseCases
     ];
 };
+
+export const combine = (a: SimpleRule, b: SimpleRule): Rule => {
+    if (a.length !== b.length) throw new Error("Recieved incompatible rules");
+
+    return a.map((aCond, i) => {
+        const bCond = b[i];
+        const match = aCond === bCond;
+        if (!match) return Value.ANY;
+
+        return aCond as unknown as Value;
+    })
+}

@@ -12,6 +12,7 @@ export declare class Table {
     renameVar(oldName: string, newName: string): void;
     addVar(varName: string): void;
     setCondition(ruleNum: number, varName: string, val: Value): void;
+    addAction(name: string): void;
     evaluate(): TableEvaluation;
     get state(): DecisionTable;
 }

@@ -36,6 +36,9 @@ class PubSubTable {
         this.dt.setCondition(row, varName, value);
         this.broadcast();
     }
+    addAction(name) {
+        return this.dt.addAction(name);
+    }
     /**
      * Forward pubsub methods
      */
