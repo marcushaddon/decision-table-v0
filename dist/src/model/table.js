@@ -100,6 +100,7 @@ class Table {
             throw new Error(`Unknown action: ${action}`);
         }
         this.table.ruleActions[ruleIdx] = action;
+        delete this.cachedEvaluation;
     }
     evaluate() {
         // maybe return cached

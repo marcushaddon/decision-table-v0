@@ -56,18 +56,23 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
         }
     }
 
-    // TODO: note redundant actions
+    const rulesWithIdxs: [Rule, number][] = rules
+            .map((rule, idx) => [rule, idx]);
+
     const redundantRules: RedundantlyCoveredAction[] = [];
-    for (let i = 0; i < rules.length; i++) {
-        for (let j = i; j < rules.length; j++) {
-            if (ruleActions[i] === ruleActions[j]) {
-                redundantRules.push({
-                    action: ruleActions[i],
-                    rules: [rules[i], rules[j]],
-                    ruleIdxs: [i, j]
-                });
-            }
-        }
+    for (const action of actions) {
+        const multiple = ruleActions.filter(ra => ra === action).length > 1;
+        if (!multiple) continue
+
+        
+        const offenders = rulesWithIdxs
+            .filter(([rule, idx]) => ruleActions[idx] === action);
+
+        redundantRules.push({
+            action: action,
+            rules: offenders.map(([rule, ]) => rule),
+            ruleIdxs: offenders.map(([, idx]) => idx)
+        });
     }
 
     const allExpanded = rules.map(rule => expand(rule));
@@ -98,6 +103,7 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
     const toRules = notSeen
         .map((val, ) => ruleFromVal(val, len)) as UnmetCondition[];
 
+    // TODO: dont mark rules without actions or with same actions as conflicts
     const conflicts = Object.entries(seenVals)
         .filter(([ ,idxs]) => idxs.length > 1)
         .map(([ val, ruleIdxs ]) => ({

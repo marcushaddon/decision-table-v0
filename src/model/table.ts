@@ -121,6 +121,7 @@ export class Table {
         }
 
         this.table.ruleActions[ruleIdx] = action;
+        delete this.cachedEvaluation;
     }
 
     public evaluate(): TableEvaluation {

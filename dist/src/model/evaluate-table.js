@@ -28,18 +28,20 @@ const evaluateTable = ({ rules, actions, ruleActions }) => {
             redundantRules: [],
         };
     }
-    // TODO: note redundant actions
+    const rulesWithIdxs = rules
+        .map((rule, idx) => [rule, idx]);
     const redundantRules = [];
-    for (let i = 0; i < rules.length; i++) {
-        for (let j = i; j < rules.length; j++) {
-            if (ruleActions[i] === ruleActions[j]) {
-                redundantRules.push({
-                    action: ruleActions[i],
-                    rules: [rules[i], rules[j]],
-                    ruleIdxs: [i, j]
-                });
-            }
-        }
+    for (const action of actions) {
+        const multiple = ruleActions.filter(ra => ra === action).length > 1;
+        if (!multiple)
+            continue;
+        const offenders = rulesWithIdxs
+            .filter(([rule, idx]) => ruleActions[idx] === action);
+        redundantRules.push({
+            action: action,
+            rules: offenders.map(([rule,]) => rule),
+            ruleIdxs: offenders.map(([, idx]) => idx)
+        });
     }
     const allExpanded = rules.map(rule => (0, rule_1.expand)(rule));
     // seenVals is a lookup from "rules numeric vallue"
