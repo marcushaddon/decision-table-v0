@@ -111,6 +111,18 @@ export class Table {
         delete this.cachedEvaluation;
     }
 
+    public assignAction(ruleIdx: number, actionIdx: number) {
+        if (ruleIdx < 0 || ruleIdx > this.table.rules.length - 1) {
+            throw new Error("Invalid rule idx");
+        }
+
+        if (actionIdx < 0 || actionIdx > this.table.actions.length - 1) {
+            throw new Error("Invalid action idx");
+        }
+
+        this.table.ruleActions[ruleIdx] = actionIdx;
+    }
+
     public evaluate(): TableEvaluation {
         // maybe return cached
         if (this.cachedEvaluation) return this.cachedEvaluation;

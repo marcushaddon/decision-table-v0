@@ -40,6 +40,10 @@ class PubSubTable {
         this.dt.addAction(name);
         this.broadcast();
     }
+    assignAction(rule, action) {
+        this.dt.assignAction(rule, action);
+        this.broadcast();
+    }
     /**
      * Forward pubsub methods
      */

@@ -18,6 +18,7 @@ const getMock = () => {
             actions: [],
         },
         addAction() { return; },
+        assignAction() { return; },
         addRule() { return; },
         addVar() { return; },
         setCondition() { return; },

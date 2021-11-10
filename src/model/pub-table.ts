@@ -11,6 +11,7 @@ export interface IDecisionTable {
     addVar(varName: string): void;
     setCondition(num: number, varName: string, val: Value): void;
     addAction(name: string): void;
+    assignAction(rule: number, action: number): void;
     evaluate(): TableEvaluation;
     state: DecisionTable;
 }
@@ -54,6 +55,11 @@ export class PubSubTable {
 
     public addAction(name: string) {
         this.dt.addAction(name);
+        this.broadcast();
+    }
+
+    public assignAction(rule: number, action: number) {
+        this.dt.assignAction(rule, action);
         this.broadcast();
     }
 

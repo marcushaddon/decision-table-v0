@@ -18,6 +18,7 @@ const getMock = (): IDecisionTable => {
             actions: [],
         },
         addAction() { return; },
+        assignAction() { return; },
         addRule() { return; },
         addVar() { return; },
         setCondition() { return; },

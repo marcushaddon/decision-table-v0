@@ -92,6 +92,15 @@ class Table {
         this.table.actions.push(name);
         delete this.cachedEvaluation;
     }
+    assignAction(ruleIdx, actionIdx) {
+        if (ruleIdx < 0 || ruleIdx > this.table.rules.length - 1) {
+            throw new Error("Invalid rule idx");
+        }
+        if (actionIdx < 0 || actionIdx > this.table.actions.length - 1) {
+            throw new Error("Invalid action idx");
+        }
+        this.table.ruleActions[ruleIdx] = actionIdx;
+    }
     evaluate() {
         // maybe return cached
         if (this.cachedEvaluation)

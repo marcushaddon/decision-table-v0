@@ -13,6 +13,7 @@ export declare class Table {
     addVar(varName: string): void;
     setCondition(ruleNum: number, varName: string, val: Value): void;
     addAction(name: string): void;
+    assignAction(ruleIdx: number, actionIdx: number): void;
     evaluate(): TableEvaluation;
     get state(): DecisionTable;
 }
