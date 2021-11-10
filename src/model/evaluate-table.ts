@@ -6,7 +6,7 @@ export type DecisionTable = {
     rules: Rule[];
     varNames: string[];
     actions: string[];
-    ruleActions: number[];
+    ruleActions: string[]; // Memberwise with rules
 };
 
 type UnmetCondition = SimpleRule; // I know, i know...
@@ -18,7 +18,7 @@ type RedundantlyCoveredCondition = {
 }
 
 type RedundantlyCoveredAction = {
-    action: number,
+    action: string,
     rules: Rule[],
     ruleIdxs: number[],
 }

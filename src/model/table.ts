@@ -111,16 +111,16 @@ export class Table {
         delete this.cachedEvaluation;
     }
 
-    public assignAction(ruleIdx: number, actionIdx: number) {
+    public assignAction(ruleIdx: number, action: string) {
         if (ruleIdx < 0 || ruleIdx > this.table.rules.length - 1) {
             throw new Error("Invalid rule idx");
         }
 
-        if (actionIdx < 0 || actionIdx > this.table.actions.length - 1) {
-            throw new Error("Invalid action idx");
+        if (!this.table.actions.includes(action)) {
+            throw new Error(`Unknown action: ${action}`);
         }
 
-        this.table.ruleActions[ruleIdx] = actionIdx;
+        this.table.ruleActions[ruleIdx] = action;
     }
 
     public evaluate(): TableEvaluation {

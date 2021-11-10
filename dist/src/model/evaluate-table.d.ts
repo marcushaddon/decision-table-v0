@@ -3,7 +3,7 @@ export declare type DecisionTable = {
     rules: Rule[];
     varNames: string[];
     actions: string[];
-    ruleActions: number[];
+    ruleActions: string[];
 };
 declare type UnmetCondition = SimpleRule;
 declare type RedundantlyCoveredCondition = {
@@ -12,7 +12,7 @@ declare type RedundantlyCoveredCondition = {
     ruleIdxs: number[];
 };
 declare type RedundantlyCoveredAction = {
-    action: number;
+    action: string;
     rules: Rule[];
     ruleIdxs: number[];
 };

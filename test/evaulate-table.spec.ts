@@ -9,7 +9,7 @@ const { T, F, ANY } = Value;
 interface Case {
     rules: Value[][];
     actions: string[];
-    ruleActions: number[];
+    ruleActions: string[];
     uncoveredVals: number[];
     // This is poorly named, this represents conflicts
     overcoveredVals: number[];
@@ -24,8 +24,8 @@ const cases: Case[] = [
             [T, F],
             [F, T],
         ],
-        actions: [],
-        ruleActions: [0, 1, 0],
+        actions: ["pet", "boop"],
+        ruleActions: ["pet", "boop", "pet"],
         uncoveredVals: [0],
         overcoveredVals: [],
         isSound: false,

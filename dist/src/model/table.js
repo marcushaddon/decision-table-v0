@@ -92,14 +92,14 @@ class Table {
         this.table.actions.push(name);
         delete this.cachedEvaluation;
     }
-    assignAction(ruleIdx, actionIdx) {
+    assignAction(ruleIdx, action) {
         if (ruleIdx < 0 || ruleIdx > this.table.rules.length - 1) {
             throw new Error("Invalid rule idx");
         }
-        if (actionIdx < 0 || actionIdx > this.table.actions.length - 1) {
-            throw new Error("Invalid action idx");
+        if (!this.table.actions.includes(action)) {
+            throw new Error(`Unknown action: ${action}`);
         }
-        this.table.ruleActions[ruleIdx] = actionIdx;
+        this.table.ruleActions[ruleIdx] = action;
     }
     evaluate() {
         // maybe return cached
