@@ -30,18 +30,23 @@ const evaluateTable = ({ rules, actions, ruleActions }) => {
     }
     const rulesWithIdxs = rules
         .map((rule, idx) => [rule, idx]);
+    // TODO: Use graph to add edges for redundancies, extract
+    // SCCs (or whatever the undirected equivalent is) to find
+    // redundant groups (because the combinability is transitive)
     const redundantRules = [];
-    for (const action of actions) {
-        const multiple = ruleActions.filter(ra => ra === action).length > 1;
-        if (!multiple)
-            continue;
-        const offenders = rulesWithIdxs
-            .filter(([rule, idx]) => ruleActions[idx] === action);
-        redundantRules.push({
-            action: action,
-            rules: offenders.map(([rule,]) => rule),
-            ruleIdxs: offenders.map(([, idx]) => idx)
-        });
+    for (let i = 0; i < rules.length; i++) {
+        for (let j = i + 1; j < rules.length; j++) {
+            if (ruleActions[i] !== ruleActions[j])
+                continue;
+            if (!(0, helpers_1.canBeCombined)(rules[i], rules[j]))
+                continue;
+            redundantRules.push({
+                action: ruleActions[i],
+                ruleIdxs: [i, j],
+                rules: [rules[i], rules[j]],
+                simplified: (0, helpers_1.combine)(rules[i], rules[j]),
+            });
+        }
     }
     const allExpanded = rules.map(rule => (0, rule_1.expand)(rule));
     // seenVals is a lookup from "rules numeric vallue"
@@ -66,17 +71,21 @@ const evaluateTable = ({ rules, actions, ruleActions }) => {
     const toRules = notSeen
         .map((val) => (0, rule_1.ruleFromVal)(val, len));
     // TODO: dont mark rules without actions or with same actions as conflicts
+    // TODO: I think the graph is overkill? just push [i, j] onto an array of conflicts
     const conflictGraph = new helpers_1.RuleGraph();
     for (let i = 0; i < rules.length; i++) {
         for (let j = i + 1; j < rules.length; j++) {
             const a = rules[i];
             const b = rules[j];
             const sameActions = ruleActions[i] === ruleActions[j];
-            if (!sameActions)
+            if (sameActions)
                 continue;
             if ((0, helpers_1.overlap)(a, b)) {
                 conflictGraph.addEdge(i, j);
             }
+            console.log({
+                i, j, a, b, sameActions, olap: (0, helpers_1.overlap)(a, b), ruleActions
+            });
         }
     }
     const conflicts = conflictGraph.edges();

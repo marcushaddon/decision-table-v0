@@ -10,6 +10,7 @@ declare type RedundantlyCoveredAction = {
     action: string;
     rules: Rule[];
     ruleIdxs: number[];
+    simplified: Rule;
 };
 export declare type TableEvaluation = {
     uncoveredConditions: UnmetCondition[];

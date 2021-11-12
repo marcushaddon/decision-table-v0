@@ -1,5 +1,5 @@
 import { Rule } from "..";
-import { Value } from "..";
+import { Value } from "../model/value";
 
 const { ANY, UNKNOWN } = Value;
 
@@ -41,6 +41,43 @@ export const overlap = (a: Rule, b: Rule): boolean => {
     }
 
     return true;
+}
+
+// This makes a strong assumption taht both rules have the same action!
+export const canBeCombined = (a: Rule, b: Rule): boolean => {
+    if (a.length !== b.length) {
+        throw new Error("Mis matched rule lengths!");
+    }
+    let conflicts = 0;
+
+    for (let i = 0; i < a.length; i++) {
+        const ar = a[i];
+        const br = b[i];
+        if (ar !== ANY && br !== ANY && ar !== br) {
+            conflicts++;
+        }
+        if (conflicts > 1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// NOTE: Does not check to see if they *can* be combined
+const _combine = (a: Rule, b: Rule): Rule => {
+    if (a.length !== b.length) throw new Error("Rule length mis match!");
+    return a.map((aCond, idx) => {
+        const bCond = b[idx];
+        if (aCond === bCond) return aCond;
+        return ANY;
+    })
+};
+
+export const combine = (...rules: Rule[]) => {
+    if (rules.length < 2) return rules[0];
+    return rules.slice(1)
+        .reduce((rule, current) => _combine(rule, current), rules[0]);
 }
 
 export class RuleGraph {

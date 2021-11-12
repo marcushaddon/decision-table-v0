@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RuleGraph = exports.overlap = exports.range = exports.fliterate = exports.oneToManyCartesianProduct = void 0;
-const __1 = require("..");
-const { ANY, UNKNOWN } = __1.Value;
+exports.RuleGraph = exports.combine = exports.canBeCombined = exports.overlap = exports.range = exports.fliterate = exports.oneToManyCartesianProduct = void 0;
+const value_1 = require("../model/value");
+const { ANY, UNKNOWN } = value_1.Value;
 const oneToManyCartesianProduct = (prefix, seqs) => seqs.map(seq => [...prefix, ...seq]);
 exports.oneToManyCartesianProduct = oneToManyCartesianProduct;
 function* fliterate(nested) {
@@ -36,6 +36,43 @@ const overlap = (a, b) => {
     return true;
 };
 exports.overlap = overlap;
+// This makes a strong assumption taht both rules have the same action!
+const canBeCombined = (a, b) => {
+    if (a.length !== b.length) {
+        throw new Error("Mis matched rule lengths!");
+    }
+    let conflicts = 0;
+    for (let i = 0; i < a.length; i++) {
+        const ar = a[i];
+        const br = b[i];
+        if (ar !== ANY && br !== ANY && ar !== br) {
+            conflicts++;
+        }
+        if (conflicts > 1) {
+            return false;
+        }
+    }
+    return true;
+};
+exports.canBeCombined = canBeCombined;
+// NOTE: Does not check to see if they *can* be combined
+const _combine = (a, b) => {
+    if (a.length !== b.length)
+        throw new Error("Rule length mis match!");
+    return a.map((aCond, idx) => {
+        const bCond = b[idx];
+        if (aCond === bCond)
+            return aCond;
+        return ANY;
+    });
+};
+const combine = (...rules) => {
+    if (rules.length < 2)
+        return rules[0];
+    return rules.slice(1)
+        .reduce((rule, current) => _combine(rule, current), rules[0]);
+};
+exports.combine = combine;
 class RuleGraph {
     constructor() {
         this.graph = {};

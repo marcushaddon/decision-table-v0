@@ -1,6 +1,6 @@
 import { expand, numVal, ruleFromVal, Rule, SimpleRule } from "./rule";
 import Value from "./value";
-import { range, RuleGraph, overlap } from "../helpers";
+import { range, RuleGraph, overlap, canBeCombined, combine } from "../helpers";
 
 export type DecisionTable = {
     rules: Rule[];
@@ -21,6 +21,7 @@ type RedundantlyCoveredAction = {
     action: string,
     rules: Rule[],
     ruleIdxs: number[],
+    simplified: Rule,
 }
 
 export type TableEvaluation = {
@@ -59,20 +60,21 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
     const rulesWithIdxs: [Rule, number][] = rules
             .map((rule, idx) => [rule, idx]);
 
+    // TODO: Use graph to add edges for redundancies, extract
+    // SCCs (or whatever the undirected equivalent is) to find
+    // redundant groups (because the combinability is transitive)
     const redundantRules: RedundantlyCoveredAction[] = [];
-    for (const action of actions) {
-        const multiple = ruleActions.filter(ra => ra === action).length > 1;
-        if (!multiple) continue
-
-        
-        const offenders = rulesWithIdxs
-            .filter(([rule, idx]) => ruleActions[idx] === action);
-
-        redundantRules.push({
-            action: action,
-            rules: offenders.map(([rule, ]) => rule),
-            ruleIdxs: offenders.map(([, idx]) => idx)
-        });
+    for (let i = 0; i < rules.length; i++) {
+        for (let j = i + 1; j < rules.length; j++) {
+            if (ruleActions[i] !== ruleActions[j]) continue;
+            if (!canBeCombined(rules[i], rules[j])) continue;
+            redundantRules.push({
+                action: ruleActions[i],
+                ruleIdxs: [i, j],
+                rules: [rules[i], rules[j]],
+                simplified: combine(rules[i], rules[j]),
+            })
+        }
     }
 
     const allExpanded = rules.map(rule => expand(rule));
@@ -104,16 +106,21 @@ export const evaluateTable = ({ rules, actions, ruleActions }: DecisionTable): T
         .map((val, ) => ruleFromVal(val, len)) as UnmetCondition[];
 
     // TODO: dont mark rules without actions or with same actions as conflicts
+    // TODO: I think the graph is overkill? just push [i, j] onto an array of conflicts
     const conflictGraph = new RuleGraph();
     for (let i = 0; i < rules.length; i++) {
         for (let j = i+1; j < rules.length; j++) {
             const a = rules[i];
             const b = rules[j];
             const sameActions = ruleActions[i] === ruleActions[j];
-            if (!sameActions) continue;
+            if (sameActions) continue;
             if (overlap(a, b)) {
                 conflictGraph.addEdge(i, j);
             }
+
+            console.log({
+                i, j, a, b, sameActions, olap: overlap(a, b), ruleActions
+            })
         }
     }
     const conflicts = conflictGraph.edges();
