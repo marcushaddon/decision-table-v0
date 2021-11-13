@@ -1,6 +1,7 @@
 import { DecisionTable, evaluateTable, TableEvaluation } from "./evaluate-table";
 import { Rule, SimpleRule } from "./rule";
 import { SimpleValue, Value } from "./value";
+import { combine } from "../helpers";
 
 export type UnorderedRule = { value: Value, varName: string }[];
 
@@ -16,7 +17,7 @@ export class Table {
         this.table.varNames = varNames ? [ ...varNames ] : [];
     };
 
-    public addRule(rule: UnorderedRule) {
+    public addRule(rule: UnorderedRule, action?: string) {
         if (this.table.varNames.length === 0) {
             this.table.varNames = rule.map(({ varName }) => varName);
         }
@@ -45,7 +46,19 @@ export class Table {
             .map(vn => varVals[vn]);
         
         this.table.rules.push(sorted);
+        if (action) this.assignAction(this.table.rules.length - 1, action);
         delete this.cachedEvaluation;
+
+        return this as Table;
+    }
+
+    public deleteRule(num: number) {
+        this.table.rules = [
+            ...this.table.rules.slice(0, num),
+            ...this.table.rules.slice(num+1)
+        ];
+
+        return this as Table;
     }
 
     public renameVar(oldName: string, newName: string) {
@@ -65,6 +78,8 @@ export class Table {
 
         // bust cache
         delete this.cachedEvaluation;
+
+        return this as Table;
     }
 
     public addVar(varName: string) {
@@ -83,6 +98,30 @@ export class Table {
 
         // bust cache
         delete this.cachedEvaluation;
+
+        return this as Table;
+    }
+
+    public deleteVar(varName: string) {
+        const idx = this.table.varNames.indexOf(varName)
+        if (idx < 0) throw new Error(`Unknown varname: ${varName}`);
+        this.table.varNames = [
+            ...this.table.varNames.slice(0, idx),
+            ...this.table.varNames.slice(idx+1)
+        ];
+
+        this.table.rules = this.table.rules
+            .map(rule => [
+                ...rule.slice(0, idx),
+                ...rule.slice(idx+1),
+            ]);
+        this.table.ruleActions = [
+            ...this.table.ruleActions.slice(0, idx),
+            ...this.table.ruleActions.slice(idx+1)
+        ];
+        delete this.cachedEvaluation;
+
+        return this as Table;
     }
 
     public setCondition(ruleNum: number, varName: string, val: Value) {
@@ -100,6 +139,8 @@ export class Table {
         this.table.rules[ruleNum][varIdx] = val;
         // bust cache
         delete this.cachedEvaluation;
+
+        return this as Table;
     }
 
     public addAction(name: string) {
@@ -109,6 +150,22 @@ export class Table {
 
         this.table.actions.push(name);
         delete this.cachedEvaluation;
+        
+        return this as Table;
+    }
+
+    public renameAction(oldName: string, newName: string) {
+        if (!this.table.actions.includes(oldName)) throw new Error(`Unknown action: ${oldName}`);
+        if (this.table.actions.includes(newName)) throw new Error(`Cannot rename ${oldName} to existing action: ${newName}`);
+
+        const idx = this.table.actions.indexOf(oldName);
+        this.table.actions[idx] = newName;
+        this.table.ruleActions = this.table.ruleActions
+            .map(ra => ra === oldName ? newName : ra);
+        
+        delete this.cachedEvaluation;
+
+        return this as Table;
     }
 
     public assignAction(ruleIdx: number, action: string) {
@@ -122,6 +179,29 @@ export class Table {
 
         this.table.ruleActions[ruleIdx] = action;
         delete this.cachedEvaluation;
+
+        return this as Table;
+    }
+
+    public simplify() {
+        const { redundantRules } = this.evaluate();
+        for (const { ruleIdxs } of redundantRules) {
+            this.simplifyRules(...ruleIdxs);
+        }
+
+        return this as Table;
+    }
+
+    public simplifyRules(...idxs: number[]) {
+        const simplified = combine(
+            ...idxs.map(idx => this.table.rules[idx])
+        );
+
+        idxs.forEach(idx => this.deleteRule(idx));
+        this.table.rules.push(simplified);
+        delete this.cachedEvaluation;
+
+        return this as Table;
     }
 
     public evaluate(): TableEvaluation {

@@ -83,9 +83,6 @@ const evaluateTable = ({ rules, actions, ruleActions }) => {
             if ((0, helpers_1.overlap)(a, b)) {
                 conflictGraph.addEdge(i, j);
             }
-            console.log({
-                i, j, a, b, sameActions, olap: (0, helpers_1.overlap)(a, b), ruleActions
-            });
         }
     }
     const conflicts = conflictGraph.edges();

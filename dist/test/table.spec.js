@@ -9,11 +9,13 @@ describe("Table", () => {
     it("happy paths", () => {
         // Handles empty table
         expect(table.evaluate().isSound).toBeFalsy();
+        table.addAction("A");
+        table.addAction("B");
         // Can add rules out of order
         table.addRule([
             { varName: "B", value: UNKNOWN },
             { varName: "A", value: T },
-        ]);
+        ], "A");
         expect(table.evaluate().isSound).toBeFalsy();
         expect(table.evaluate().incompleteRules.length).toEqual(1);
         // Sets condition
@@ -34,26 +36,10 @@ describe("Table", () => {
         const res3 = table.evaluate();
         expect(res3.isSound).toBeTruthy();
         expect(res3.uncoveredConditions.length).toEqual(0);
-        // Detects overlapping rules
-        table.addRule([
-            {
-                varName: "A",
-                value: F
-            },
-            {
-                varName: "B",
-                value: T
-            }
-        ]);
-        const res4 = table.evaluate();
-        expect(res4.isSound).toBeFalsy();
-        expect(res4.incompleteRules.length).toEqual(0);
-        expect(res4.uncoveredConditions.length).toEqual(0);
-        expect(res4.conflicts.length).toEqual(1);
         table.addVar("C");
         const res5 = table.evaluate();
         expect(res5.isSound).toBeFalsy();
-        expect(res5.incompleteRules.length).toEqual(3);
+        expect(res5.incompleteRules.length).toEqual(2);
     });
     it("sad paths", () => {
         const t2 = new table_1.Table(fieldNames);
@@ -91,5 +77,26 @@ describe("Table", () => {
         expect(() => {
             t2.renameVar("C", "D");
         }).toThrow();
+    });
+    it("detects conflicts", () => {
+        const t = new table_1.Table(["A", "B"])
+            .addAction("doA")
+            .addAction("doB")
+            .addRule([{
+                varName: "A",
+                value: T
+            }, {
+                varName: "B",
+                value: F
+            }], "doA")
+            .addRule([{
+                varName: "A",
+                value: T
+            }, {
+                varName: "B",
+                value: ANY
+            }], "doB");
+        const res = t.evaluate();
+        expect(res.isSound).toBeFalsy();
     });
 });

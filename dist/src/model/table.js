@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Table = void 0;
 const evaluate_table_1 = require("./evaluate-table");
 const value_1 = require("./value");
+const helpers_1 = require("../helpers");
 class Table {
     constructor(varNames) {
         this.table = {
@@ -14,7 +15,7 @@ class Table {
         this.table.varNames = varNames ? [...varNames] : [];
     }
     ;
-    addRule(rule) {
+    addRule(rule, action) {
         if (this.table.varNames.length === 0) {
             this.table.varNames = rule.map(({ varName }) => varName);
         }
@@ -36,7 +37,17 @@ class Table {
         const sorted = this.table.varNames
             .map(vn => varVals[vn]);
         this.table.rules.push(sorted);
+        if (action)
+            this.assignAction(this.table.rules.length - 1, action);
         delete this.cachedEvaluation;
+        return this;
+    }
+    deleteRule(num) {
+        this.table.rules = [
+            ...this.table.rules.slice(0, num),
+            ...this.table.rules.slice(num + 1)
+        ];
+        return this;
     }
     renameVar(oldName, newName) {
         // Make sure oldName exists
@@ -54,6 +65,7 @@ class Table {
         this.table.varNames[oldIdx] = newName;
         // bust cache
         delete this.cachedEvaluation;
+        return this;
     }
     addVar(varName) {
         // make sure doesnt exist
@@ -69,6 +81,27 @@ class Table {
         }
         // bust cache
         delete this.cachedEvaluation;
+        return this;
+    }
+    deleteVar(varName) {
+        const idx = this.table.varNames.indexOf(varName);
+        if (idx < 0)
+            throw new Error(`Unknown varname: ${varName}`);
+        this.table.varNames = [
+            ...this.table.varNames.slice(0, idx),
+            ...this.table.varNames.slice(idx + 1)
+        ];
+        this.table.rules = this.table.rules
+            .map(rule => [
+            ...rule.slice(0, idx),
+            ...rule.slice(idx + 1),
+        ]);
+        this.table.ruleActions = [
+            ...this.table.ruleActions.slice(0, idx),
+            ...this.table.ruleActions.slice(idx + 1)
+        ];
+        delete this.cachedEvaluation;
+        return this;
     }
     setCondition(ruleNum, varName, val) {
         // make sure varName exists 
@@ -84,6 +117,7 @@ class Table {
         this.table.rules[ruleNum][varIdx] = val;
         // bust cache
         delete this.cachedEvaluation;
+        return this;
     }
     addAction(name) {
         if (this.table.actions.includes(name)) {
@@ -91,6 +125,19 @@ class Table {
         }
         this.table.actions.push(name);
         delete this.cachedEvaluation;
+        return this;
+    }
+    renameAction(oldName, newName) {
+        if (!this.table.actions.includes(oldName))
+            throw new Error(`Unknown action: ${oldName}`);
+        if (this.table.actions.includes(newName))
+            throw new Error(`Cannot rename ${oldName} to existing action: ${newName}`);
+        const idx = this.table.actions.indexOf(oldName);
+        this.table.actions[idx] = newName;
+        this.table.ruleActions = this.table.ruleActions
+            .map(ra => ra === oldName ? newName : ra);
+        delete this.cachedEvaluation;
+        return this;
     }
     assignAction(ruleIdx, action) {
         if (ruleIdx < 0 || ruleIdx > this.table.rules.length - 1) {
@@ -101,6 +148,21 @@ class Table {
         }
         this.table.ruleActions[ruleIdx] = action;
         delete this.cachedEvaluation;
+        return this;
+    }
+    simplify() {
+        const { redundantRules } = this.evaluate();
+        for (const { ruleIdxs } of redundantRules) {
+            this.simplifyRules(...ruleIdxs);
+        }
+        return this;
+    }
+    simplifyRules(...idxs) {
+        const simplified = (0, helpers_1.combine)(...idxs.map(idx => this.table.rules[idx]));
+        idxs.forEach(idx => this.deleteRule(idx));
+        this.table.rules.push(simplified);
+        delete this.cachedEvaluation;
+        return this;
     }
     evaluate() {
         // maybe return cached

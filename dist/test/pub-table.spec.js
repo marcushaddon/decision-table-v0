@@ -18,11 +18,16 @@ const getMock = () => {
             actions: [],
         },
         addAction() { return; },
+        renameAction() { return; },
         assignAction() { return; },
         addRule() { return; },
+        deleteRule() { return; },
         addVar() { return; },
+        deleteVar() { return; },
         setCondition() { return; },
         renameVar() { return; },
+        simplify() { return; },
+        simplifyRules() { return; },
         evaluate() { return this.result; }
     };
 };

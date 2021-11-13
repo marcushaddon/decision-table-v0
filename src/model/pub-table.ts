@@ -6,13 +6,19 @@ import { Value } from "..";
 type EventNames = "evaluated";
 
 export interface IDecisionTable {
-    addRule(rule: UnorderedRule): void;
-    renameVar(oldName: string, newName: string): void;
-    addVar(varName: string): void;
-    setCondition(num: number, varName: string, val: Value): void;
-    addAction(name: string): void;
-    assignAction(rule: number, action: string): void;
+    addRule(rule: UnorderedRule): Table;
+    deleteRule(num: number): Table;
+    renameVar(oldName: string, newName: string): Table;
+    // deleteAction(action: string): Table;
+    renameAction(oldName: string, newName: string): Table;
+    addVar(varName: string): Table;
+    deleteVar(varName: string): Table;
+    setCondition(num: number, varName: string, val: Value): Table;
+    addAction(name: string): Table;
+    assignAction(rule: number, action: string): Table;
     evaluate(): TableEvaluation;
+    simplify(): Table;
+    simplifyRules(...idxs: number[]): Table;
     state: DecisionTable;
 }
 
@@ -36,31 +42,61 @@ export class PubSubTable {
     public addRule(rule: UnorderedRule) {
         this.dt.addRule(rule);
         this.broadcast();
+        return this;
+    }
+
+    public deleteRule(num: number) {
+        this.dt.deleteRule(num);
+        this.broadcast();
+        return this;
     }
 
     public renameVar(old: string, newName: string) {
         this.dt.renameVar(old, newName);
         this.broadcast();
+        return this;
     }
 
     public addVar(varName: string) {
         this.dt.addVar(varName);
         this.broadcast();
+        return this;
+    }
+
+    public renameAction(oldName: string, newName: string) {
+        this.dt.renameAction(oldName, newName);
+        this.broadcast();
+        return this;
     }
 
     public setCondition(row: number, varName: string, value: Value) {
         this.dt.setCondition(row, varName, value);
         this.broadcast();
+        return this;
     }
 
     public addAction(name: string) {
         this.dt.addAction(name);
         this.broadcast();
+        return this;
     }
 
     public assignAction(rule: number, action: string) {
         this.dt.assignAction(rule, action);
         this.broadcast();
+        return this;
+    }
+
+    public simplifyRules(...idxs: number[]) {
+        this.dt.simplifyRules(...idxs);
+        this.broadcast;
+        return this;
+    }
+
+    public simplify() {
+        this.dt.simplify();
+        this.broadcast;
+        return this;
     }
 
     /**

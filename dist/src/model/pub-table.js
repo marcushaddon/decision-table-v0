@@ -23,26 +23,52 @@ class PubSubTable {
     addRule(rule) {
         this.dt.addRule(rule);
         this.broadcast();
+        return this;
+    }
+    deleteRule(num) {
+        this.dt.deleteRule(num);
+        this.broadcast();
+        return this;
     }
     renameVar(old, newName) {
         this.dt.renameVar(old, newName);
         this.broadcast();
+        return this;
     }
     addVar(varName) {
         this.dt.addVar(varName);
         this.broadcast();
+        return this;
+    }
+    renameAction(oldName, newName) {
+        this.dt.renameAction(oldName, newName);
+        this.broadcast();
+        return this;
     }
     setCondition(row, varName, value) {
         this.dt.setCondition(row, varName, value);
         this.broadcast();
+        return this;
     }
     addAction(name) {
         this.dt.addAction(name);
         this.broadcast();
+        return this;
     }
     assignAction(rule, action) {
         this.dt.assignAction(rule, action);
         this.broadcast();
+        return this;
+    }
+    simplifyRules(...idxs) {
+        this.dt.simplifyRules(...idxs);
+        this.broadcast;
+        return this;
+    }
+    simplify() {
+        this.dt.simplify();
+        this.broadcast;
+        return this;
     }
     /**
      * Forward pubsub methods

@@ -8,12 +8,17 @@ export declare class Table {
     private table;
     private cachedEvaluation?;
     constructor(varNames?: string[]);
-    addRule(rule: UnorderedRule): void;
-    renameVar(oldName: string, newName: string): void;
-    addVar(varName: string): void;
-    setCondition(ruleNum: number, varName: string, val: Value): void;
-    addAction(name: string): void;
-    assignAction(ruleIdx: number, action: string): void;
+    addRule(rule: UnorderedRule, action?: string): Table;
+    deleteRule(num: number): Table;
+    renameVar(oldName: string, newName: string): Table;
+    addVar(varName: string): Table;
+    deleteVar(varName: string): Table;
+    setCondition(ruleNum: number, varName: string, val: Value): Table;
+    addAction(name: string): Table;
+    renameAction(oldName: string, newName: string): Table;
+    assignAction(ruleIdx: number, action: string): Table;
+    simplify(): Table;
+    simplifyRules(...idxs: number[]): Table;
     evaluate(): TableEvaluation;
     get state(): DecisionTable;
 }
