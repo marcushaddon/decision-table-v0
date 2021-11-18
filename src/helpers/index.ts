@@ -111,3 +111,6 @@ export class RuleGraph {
         return n in this.graph;
     }
 }
+
+export const equal = (a: Rule, b: Rule): boolean =>
+    a.length === b.length && a.findIndex((c, i) => c !== b[i]) < 0;

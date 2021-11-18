@@ -1,7 +1,7 @@
 import { DecisionTable, evaluateTable, TableEvaluation } from "./evaluate-table";
 import { Rule, SimpleRule } from "./rule";
 import { SimpleValue, Value } from "./value";
-import { combine } from "../helpers";
+import { combine, equal } from "../helpers";
 
 export type UnorderedRule = { value: Value, varName: string }[];
 
@@ -52,10 +52,13 @@ export class Table {
         return this as Table;
     }
 
-    public deleteRule(num: number) {
+    public deleteRule(rule: Rule) {
+        const idx = this.table.rules.findIndex(
+            r => equal(r, rule)
+        );
         this.table.rules = [
-            ...this.table.rules.slice(0, num),
-            ...this.table.rules.slice(num+1)
+            ...this.table.rules.slice(0, idx),
+            ...this.table.rules.slice(idx+1)
         ];
 
         return this as Table;
@@ -185,19 +188,23 @@ export class Table {
 
     public simplify() {
         const { redundantRules } = this.evaluate();
-        for (const { ruleIdxs } of redundantRules) {
-            this.simplifyRules(...ruleIdxs);
+        for (const { rules } of redundantRules) {
+            this.simplifyRules(...rules);
         }
 
         return this as Table;
     }
 
-    public simplifyRules(...idxs: number[]) {
+    public simplifyRules(...rules: Rule[]) {
+
         const simplified = combine(
-            ...idxs.map(idx => this.table.rules[idx])
+            ...rules
         );
 
-        idxs.forEach(idx => this.deleteRule(idx));
+        rules.forEach(rule => {
+            
+            this.deleteRule(rule);
+        });
         this.table.rules.push(simplified);
         delete this.cachedEvaluation;
 

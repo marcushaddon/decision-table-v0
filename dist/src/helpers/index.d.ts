@@ -12,4 +12,5 @@ export declare class RuleGraph {
     edges(): number[][];
     has(n: number): boolean;
 }
+export declare const equal: (a: Rule, b: Rule) => boolean;
 //# sourceMappingURL=index.d.ts.map

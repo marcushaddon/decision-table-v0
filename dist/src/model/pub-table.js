@@ -25,8 +25,8 @@ class PubSubTable {
         this.broadcast();
         return this;
     }
-    deleteRule(num) {
-        this.dt.deleteRule(num);
+    deleteRule(rule) {
+        this.dt.deleteRule(rule);
         this.broadcast();
         return this;
     }
@@ -60,9 +60,9 @@ class PubSubTable {
         this.broadcast();
         return this;
     }
-    simplifyRules(...idxs) {
-        this.dt.simplifyRules(...idxs);
-        this.broadcast;
+    simplifyRules(...rules) {
+        this.dt.simplifyRules(...rules);
+        this.broadcast();
         return this;
     }
     simplify() {

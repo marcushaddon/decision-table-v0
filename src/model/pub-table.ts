@@ -1,13 +1,13 @@
 import { PubSub } from "./pub-sub";
 import { Table, UnorderedRule } from "./table";
 import { DecisionTable, TableEvaluation } from "./evaluate-table";
-import { Value } from "..";
+import { Value, Rule } from "..";
 
 type EventNames = "evaluated";
 
 export interface IDecisionTable {
     addRule(rule: UnorderedRule): Table;
-    deleteRule(num: number): Table;
+    deleteRule(rule: Rule): Table;
     renameVar(oldName: string, newName: string): Table;
     // deleteAction(action: string): Table;
     renameAction(oldName: string, newName: string): Table;
@@ -18,7 +18,7 @@ export interface IDecisionTable {
     assignAction(rule: number, action: string): Table;
     evaluate(): TableEvaluation;
     simplify(): Table;
-    simplifyRules(...idxs: number[]): Table;
+    simplifyRules(...rules: Rule[]): Table;
     state: DecisionTable;
 }
 
@@ -45,8 +45,8 @@ export class PubSubTable {
         return this;
     }
 
-    public deleteRule(num: number) {
-        this.dt.deleteRule(num);
+    public deleteRule(rule: Rule) {
+        this.dt.deleteRule(rule);
         this.broadcast();
         return this;
     }
@@ -87,9 +87,9 @@ export class PubSubTable {
         return this;
     }
 
-    public simplifyRules(...idxs: number[]) {
-        this.dt.simplifyRules(...idxs);
-        this.broadcast;
+    public simplifyRules(...rules: Rule[]) {
+        this.dt.simplifyRules(...rules);
+        this.broadcast();
         return this;
     }
 

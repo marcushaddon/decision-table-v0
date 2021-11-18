@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RuleGraph = exports.combine = exports.canBeCombined = exports.overlap = exports.range = exports.fliterate = exports.oneToManyCartesianProduct = void 0;
+exports.equal = exports.RuleGraph = exports.combine = exports.canBeCombined = exports.overlap = exports.range = exports.fliterate = exports.oneToManyCartesianProduct = void 0;
 const value_1 = require("../model/value");
 const { ANY, UNKNOWN } = value_1.Value;
 const oneToManyCartesianProduct = (prefix, seqs) => seqs.map(seq => [...prefix, ...seq]);
@@ -105,3 +105,5 @@ class RuleGraph {
     }
 }
 exports.RuleGraph = RuleGraph;
+const equal = (a, b) => a.length === b.length && a.findIndex((c, i) => c !== b[i]) < 0;
+exports.equal = equal;

@@ -42,10 +42,11 @@ class Table {
         delete this.cachedEvaluation;
         return this;
     }
-    deleteRule(num) {
+    deleteRule(rule) {
+        const idx = this.table.rules.findIndex(r => (0, helpers_1.equal)(r, rule));
         this.table.rules = [
-            ...this.table.rules.slice(0, num),
-            ...this.table.rules.slice(num + 1)
+            ...this.table.rules.slice(0, idx),
+            ...this.table.rules.slice(idx + 1)
         ];
         return this;
     }
@@ -152,14 +153,16 @@ class Table {
     }
     simplify() {
         const { redundantRules } = this.evaluate();
-        for (const { ruleIdxs } of redundantRules) {
-            this.simplifyRules(...ruleIdxs);
+        for (const { rules } of redundantRules) {
+            this.simplifyRules(...rules);
         }
         return this;
     }
-    simplifyRules(...idxs) {
-        const simplified = (0, helpers_1.combine)(...idxs.map(idx => this.table.rules[idx]));
-        idxs.forEach(idx => this.deleteRule(idx));
+    simplifyRules(...rules) {
+        const simplified = (0, helpers_1.combine)(...rules);
+        rules.forEach(rule => {
+            this.deleteRule(rule);
+        });
         this.table.rules.push(simplified);
         delete this.cachedEvaluation;
         return this;

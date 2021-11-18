@@ -1,10 +1,10 @@
 import { PubSub } from "./pub-sub";
 import { Table, UnorderedRule } from "./table";
 import { DecisionTable, TableEvaluation } from "./evaluate-table";
-import { Value } from "..";
+import { Value, Rule } from "..";
 export interface IDecisionTable {
     addRule(rule: UnorderedRule): Table;
-    deleteRule(num: number): Table;
+    deleteRule(rule: Rule): Table;
     renameVar(oldName: string, newName: string): Table;
     renameAction(oldName: string, newName: string): Table;
     addVar(varName: string): Table;
@@ -14,7 +14,7 @@ export interface IDecisionTable {
     assignAction(rule: number, action: string): Table;
     evaluate(): TableEvaluation;
     simplify(): Table;
-    simplifyRules(...idxs: number[]): Table;
+    simplifyRules(...rules: Rule[]): Table;
     state: DecisionTable;
 }
 export declare class PubSubTable {
@@ -31,14 +31,14 @@ export declare class PubSubTable {
      * Forward Table methods, TODO: evaulate and maybe broadcast
      */
     addRule(rule: UnorderedRule): this;
-    deleteRule(num: number): this;
+    deleteRule(rule: Rule): this;
     renameVar(old: string, newName: string): this;
     addVar(varName: string): this;
     renameAction(oldName: string, newName: string): this;
     setCondition(row: number, varName: string, value: Value): this;
     addAction(name: string): this;
     assignAction(rule: number, action: string): this;
-    simplifyRules(...idxs: number[]): this;
+    simplifyRules(...rules: Rule[]): this;
     simplify(): this;
     /**
      * Forward pubsub methods
